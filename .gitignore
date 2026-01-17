@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.pyc
+
+# Virtual environments
+venv/
+.env/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Audio / temp files
+*.wav
+
+# AI models (very important)
+models/
+piper/models/
+vosk-model*
+
+# Memory / user data
+data/
+long_term_memory.json
+emotion_history.json
+# Piper internals (do NOT commit)
+piper/
+

@@ -9,6 +9,11 @@ from tts import speak
 from intent import detect_intent
 from long_memory import add_memory
 from stt import listen
+from wake_word import wait_for_wake_word
+from state import state
+import time
+
+
 
 
 
@@ -21,6 +26,13 @@ def main_loop():
     try:
         while state.running:
             user_input = get_user_input()
+
+            if not user_input:
+                log("🟡 Say wake word...")
+            if wait_for_wake_word():
+                log("🟢 Wake word detected. Listening...")
+                user_input = listen()
+
 
             if not user_input:
                 log("🎤 Listening...")
@@ -48,35 +60,57 @@ def get_user_input():
 
 
 def handle_user_input(text):
-
+    # ----- Understanding layer -----
     emotion = detect_text_emotion(text)
-    state.current_emotion = emotion
-
-    memory.add_user(text)
-    memory_context = memory.get_context()
     intent = detect_intent(text)
+
+    state.current_emotion = emotion
     state.current_intent = intent
 
+    # ----- Memory (input) -----
+    memory.add_user(text)
+    memory_context = memory.get_context()
+
+    if intent == "life_event":
+        add_memory(
+            title="Personal life event",
+            summary=text,
+            emotion=emotion
+        )
+
+    # ----- Build prompt -----
     prompt = build_prompt(
         user_text=text,
         memory_context=memory_context,
         emotion=emotion,
         intent=intent
     )
-    if intent == "life_event":
-        add_memory(
-        title="Personal life event",
-        summary=text,
-        emotion=emotion
-    )
 
+    # ----- Thinking -----
+    state.ui_state = "thinking"
 
+    start = time.time()
     response = generate_response(prompt)
+    elapsed = time.time() - start
 
+    # Only add delay if LLM was VERY fast (blink prevention)
+    if elapsed < 0.15:
+        time.sleep(0.15 - elapsed)
+
+
+
+    # ----- Memory (output) -----
     memory.add_ai(response)
-    log(f"AI: {response}")
 
-    speak(response,emotion)   # 🔊 emotion-aware voice
+    state.ui_state = "speaking"
+    log(f"AI: {response}")
+    speak(response, emotion)
+
+# Let speaking state linger briefly
+    time.sleep(0.2)
+
+    state.ui_state = "idle"
+    state.idle_time = 0
 
 
 def shutdown():

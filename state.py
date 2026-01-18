@@ -1,10 +1,10 @@
-class AppState:
+class State:
     def __init__(self):
         self.running = True
-        self.idle_time = 0
-        self.last_event = None
-        self.current_emotion = "neutral" 
+        self.ui_state = "idle"
+        self.current_emotion = "neutral"
         self.current_intent = "normal"
+        self.idle_time = 0
 
 
-state = AppState()
+state = State()

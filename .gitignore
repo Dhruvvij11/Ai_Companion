@@ -12,9 +12,13 @@ Thumbs.db
 
 # Audio / temp files
 *.wav
+*.log
+tmp/
+cache/
 
 # AI models (very important)
 models/
+piper/
 piper/models/
 vosk-model*
 
@@ -22,6 +26,3 @@ vosk-model*
 data/
 long_term_memory.json
 emotion_history.json
-# Piper internals (do NOT commit)
-piper/
-

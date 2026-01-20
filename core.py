@@ -13,6 +13,8 @@ from wake_word import wait_for_wake_word
 from state import state
 import time
 from tool_router import route
+from tools.time_tool import handle_time
+
 
 
 
@@ -63,22 +65,22 @@ def handle_user_input(text):
     emotion = detect_text_emotion(text)
     intent = detect_intent(text)
 
-    tool = route(intent)
-
-    if tool == "time":
-        from tools.time_tool import handle_time
-
-    state.ui_state = "speaking"
-    response = handle_time()
-    log(f"AI: {response}")
-    speak(response, emotion)
-    state.ui_state = "idle"
-    return
-
     state.current_emotion = emotion
     state.current_intent = intent
 
-    # ----- Memory (input) -----
+    tool = route(intent)
+
+    # ----- TOOL ROUTING -----
+    if tool == "time":
+        state.ui_state = "speaking"
+        response = handle_time()
+        log(f"AI: {response}")
+        speak(response, emotion)
+        state.ui_state = "idle"
+        state.idle_time = 0
+        return
+
+    # ----- MEMORY (INPUT) -----
     memory.add_user(text)
     memory_context = memory.get_context()
 
@@ -89,7 +91,7 @@ def handle_user_input(text):
             emotion=emotion
         )
 
-    # ----- Build prompt -----
+    # ----- PROMPT -----
     prompt = build_prompt(
         user_text=text,
         memory_context=memory_context,
@@ -97,27 +99,24 @@ def handle_user_input(text):
         intent=intent
     )
 
-    # ----- Thinking -----
+    # ----- THINKING -----
     state.ui_state = "thinking"
 
     start = time.time()
     response = generate_response(prompt)
     elapsed = time.time() - start
 
-    # Only add delay if LLM was VERY fast (blink prevention)
     if elapsed < 0.15:
         time.sleep(0.15 - elapsed)
 
-
-
-    # ----- Memory (output) -----
+    # ----- MEMORY (OUTPUT) -----
     memory.add_ai(response)
 
+    # ----- SPEAKING -----
     state.ui_state = "speaking"
     log(f"AI: {response}")
     speak(response, emotion)
 
-# Let speaking state linger briefly
     time.sleep(0.2)
 
     state.ui_state = "idle"

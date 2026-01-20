@@ -1,5 +1,6 @@
 from datetime import datetime
 
-def get_current_time():
+def handle_time():
+    print("Time tool called")
     now = datetime.now()
-    return now.strftime("%I:%M %p").lstrip("0")
+    return f"It’s {now.strftime('%I:%M %p').lstrip('0')}."

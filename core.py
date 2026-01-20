@@ -12,8 +12,7 @@ from stt import listen
 from wake_word import wait_for_wake_word
 from state import state
 import time
-
-
+from tool_router import route
 
 
 
@@ -63,6 +62,18 @@ def handle_user_input(text):
     # ----- Understanding layer -----
     emotion = detect_text_emotion(text)
     intent = detect_intent(text)
+
+    tool = route(intent)
+
+    if tool == "time":
+        from tools.time_tool import handle_time
+
+    state.ui_state = "speaking"
+    response = handle_time()
+    log(f"AI: {response}")
+    speak(response, emotion)
+    state.ui_state = "idle"
+    return
 
     state.current_emotion = emotion
     state.current_intent = intent

@@ -37,6 +37,14 @@ def detect_intent(text: str) -> str:
         "why this happened"
     ]):
         return "why_question"
+    if any(word in t for word in [
+    "weather",
+    "temperature",
+    "rain",
+    "forecast"
+    ]):
+        return "weather"
+
 
     if any(phrase in t for phrase in [
         "breakup",

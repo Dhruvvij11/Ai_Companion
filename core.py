@@ -14,6 +14,8 @@ from state import state
 import time
 from tool_router import route
 from tools.time_tool import handle_time
+from tools.weather_tool import handle_weather
+
 
 
 
@@ -79,6 +81,15 @@ def handle_user_input(text):
         state.ui_state = "idle"
         state.idle_time = 0
         return
+    if tool == "weather":
+        state.ui_state = "speaking"
+        response = handle_weather(text)
+        log(f"AI: {response}")
+        speak(response, emotion)
+        state.ui_state = "idle"
+        state.idle_time = 0
+        return
+
 
     # ----- MEMORY (INPUT) -----
     memory.add_user(text)

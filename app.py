@@ -2,6 +2,7 @@ from threading import Thread
 from utils import log
 from ui import start_ui
 from core import main_loop
+from behaviour import idle_message
 
 
 def start_app():
@@ -19,3 +20,6 @@ def start_app():
 
 if __name__ == "__main__":
     start_app()
+emotion = "neutral"   # abhi ke liye hardcode
+msg = idle_message(emotion)
+tts.speak(msg)

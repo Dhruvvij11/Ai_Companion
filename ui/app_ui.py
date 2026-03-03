@@ -1,5 +1,5 @@
 import tkinter as tk
-from state import state
+from core.state import state
 
 STATE_COLORS = {
     "idle": "#9aa0a6",       # gray

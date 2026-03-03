@@ -1,22 +1,32 @@
 import requests
 
+
 def geocode_city(city: str):
     try:
         url = (
             "https://geocoding-api.open-meteo.com/v1/search"
             f"?name={city}&count=1"
         )
-        data = requests.get(url, timeout=5).json()
-
-        if "results" not in data:
-            return None
-
-        result = data["results"][0]
-        return {
-            "name": result["name"],
-            "lat": result["latitude"],
-            "lon": result["longitude"]
-        }
-
-    except Exception:
+        response = requests.get(url, timeout=5)
+        response.raise_for_status()
+        data = response.json()
+    except (requests.RequestException, ValueError):
         return None
+
+    results = data.get("results") or []
+    if not results:
+        return None
+
+    result = results[0]
+    name = result.get("name")
+    lat = result.get("latitude")
+    lon = result.get("longitude")
+
+    if name is None or lat is None or lon is None:
+        return None
+
+    return {
+        "name": name,
+        "lat": lat,
+        "lon": lon,
+    }

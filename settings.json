@@ -1,0 +1,10 @@
+{
+  "stt_language": "auto",
+  "tts_language": "en",
+  "tts_speed_multiplier": 1.0,
+  "wake_phrases": [
+    "hey nova",
+    "hello nova",
+    "okay nova"
+  ]
+}

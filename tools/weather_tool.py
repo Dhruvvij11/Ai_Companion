@@ -1,17 +1,17 @@
 import requests
-from tools.location_extractor import extract_location
+
 from tools.geocoding import geocode_city
+from tools.location_extractor import extract_location
+
 
 def handle_weather(user_text: str):
     city = extract_location(user_text)
-
     if not city:
         return "Tell me the city name to check the weather."
 
     location = geocode_city(city)
-
     if not location:
-        return f"I couldn’t find weather data for {city}."
+        return f"I couldn't find weather data for {city}."
 
     lat = location["lat"]
     lon = location["lon"]
@@ -24,13 +24,19 @@ def handle_weather(user_text: str):
     )
 
     try:
-        data = requests.get(url, timeout=5).json()
-        weather = data["current_weather"]
+        response = requests.get(url, timeout=5)
+        response.raise_for_status()
+        data = response.json()
+    except (requests.RequestException, ValueError):
+        return "I couldn't fetch the weather right now."
 
-        temp = weather["temperature"]
-        wind = weather["windspeed"]
+    weather = data.get("current_weather")
+    if not weather:
+        return "I couldn't fetch the weather right now."
 
-        return f"It’s {temp}°C right now in {city_name}, with wind around {wind} km/h."
+    temp = weather.get("temperature")
+    wind = weather.get("windspeed")
+    if temp is None or wind is None:
+        return "I couldn't fetch the weather right now."
 
-    except Exception:
-        return "I couldn’t fetch the weather right now."
+    return f"It's {temp} C right now in {city_name}, with wind around {wind} km/h."

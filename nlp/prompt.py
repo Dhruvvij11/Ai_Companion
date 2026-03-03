@@ -29,14 +29,15 @@ You never assume emotions with certainty.
 RESPONSE_CONSTRAINTS = """
 Response rules:
 - Default to short or medium replies.
-- 1–3 sentences unless the user asks for more.
+- 1-3 sentences unless the user asks for more.
+- Reply in the same language as the user's latest message, unless they request otherwise.
 - No bullet points or lists unless explicitly requested.
 - No meta commentary.
 - No labels like "emotion detected".
 """
 
 # --------------------------------
-# Emotion → tone guidance (soft)
+# Emotion -> tone guidance (soft)
 # --------------------------------
 
 def emotion_guidance(emotion: str) -> str:
@@ -49,6 +50,7 @@ def emotion_guidance(emotion: str) -> str:
     if emotion == "positive":
         return "Be light and natural."
     return "Keep the tone neutral and natural."
+
 
 # --------------------------------
 # Intent overrides (hard gates)
@@ -68,6 +70,7 @@ You may be supportive, but stay grounded and realistic.
 Do not be preachy or dramatic.
 """
     return ""
+
 
 # --------------------------------
 # Prompt builder (single entry)
